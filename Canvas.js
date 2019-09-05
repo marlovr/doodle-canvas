@@ -1,10 +1,10 @@
 import React from "react";
-import "./Canvas.css";
 
 import { Spring, animated, interpolate } from "react-spring/renderprops";
 
 import PropTypes from "prop-types";
 import { random, throttle } from "lodash";
+import pointInSvgPolygon from "point-in-svg-polygon";
 
 // Don't need to import like this:
 // `import doodles from "./doodles/index.js";`
@@ -14,7 +14,8 @@ import { random, throttle } from "lodash";
 import doodles from "./bits/doodles";
 import shapes from "./bits/shapes";
 
-const SHAPE_WIDTH = 100;
+const SHAPE_WIDTH = 75;
+const SHAPE_SPACE = 30;
 const HIT_WIDTH = SHAPE_WIDTH * 2;
 const MAX_MOVE = SHAPE_WIDTH / 3;
 
@@ -24,13 +25,12 @@ class ShapeOrDoodle extends React.PureComponent {
     this.me = React.createRef();
     this.collide = this._collide.bind(this);
     this.uncollide = this._uncollide.bind(this);
-  }
 
-  state = {
-    color: "red",
-    x: 0,
-    y: 0
-  };
+    this.state = {
+      x: 0,
+      y: 0
+    };
+  }
 
   componentDidMount() {
     this.setState({
@@ -42,8 +42,6 @@ class ShapeOrDoodle extends React.PureComponent {
   }
 
   _collide(collisions) {
-    // console.log("Collided");
-
     if (this.state.moving) {
       return;
     }
@@ -61,7 +59,7 @@ class ShapeOrDoodle extends React.PureComponent {
       !collisions.bottomLeft &&
       !collisions.bottomRight &&
       !collisions.bottom &&
-      !collisions.top && 
+      !collisions.top &&
       !collisions.left &&
       !collisions.right;
     const collidedTopRight =
@@ -70,7 +68,7 @@ class ShapeOrDoodle extends React.PureComponent {
       !collisions.topLeft &&
       !collisions.bottomLeft &&
       !collisions.bottom &&
-      !collisions.top && 
+      !collisions.top &&
       !collisions.left &&
       !collisions.right;
     const collidedBottomLeft =
@@ -79,7 +77,7 @@ class ShapeOrDoodle extends React.PureComponent {
       !collisions.bottomRight &&
       !collisions.topRight &&
       !collisions.bottom &&
-      !collisions.top && 
+      !collisions.top &&
       !collisions.left &&
       !collisions.right;
     const collidedBottomRight =
@@ -88,91 +86,97 @@ class ShapeOrDoodle extends React.PureComponent {
       !collisions.topRight &&
       !collisions.topLeft &&
       !collisions.bottom &&
-      !collisions.top && 
+      !collisions.top &&
       !collisions.left &&
       !collisions.right;
 
     const movements = {
       topRight: [
         {
-          x: -(MAX_MOVE / 4),
-          y: MAX_MOVE
+          x: -(this.props.maxMove / 4),
+          y: this.props.maxMove
         },
         {
-          x: -MAX_MOVE,
-          y: MAX_MOVE
+          x: -this.props.maxMove,
+          y: this.props.maxMove
         },
         {
-          x: -MAX_MOVE,
-          y: MAX_MOVE / 4
+          x: -this.props.maxMove,
+          y: this.props.maxMove / 4
         }
       ],
       topLeft: [
         {
-          x: MAX_MOVE / 4,
-          y: MAX_MOVE
+          x: this.props.maxMove / 4,
+          y: this.props.maxMove
         },
         {
-          x: MAX_MOVE,
-          y: MAX_MOVE
+          x: this.props.maxMove,
+          y: this.props.maxMove
         },
         {
-          x: MAX_MOVE,
-          y: MAX_MOVE / 4
+          x: this.props.maxMove,
+          y: this.props.maxMove / 4
         }
       ],
       bottomLeft: [
         {
-          x: MAX_MOVE / 4,
-          y: -MAX_MOVE
+          x: this.props.maxMove / 4,
+          y: -this.props.maxMove
         },
         {
-          x: MAX_MOVE,
-          y: -MAX_MOVE
+          x: this.props.maxMove,
+          y: -this.props.maxMove
         },
         {
-          x: MAX_MOVE,
-          y: -(MAX_MOVE / 4)
+          x: this.props.maxMove,
+          y: -(this.props.maxMove / 4)
         }
       ],
       bottomRight: [
         {
-          x: -(MAX_MOVE / 4),
-          y: -MAX_MOVE
+          x: -(this.props.maxMove / 4),
+          y: -this.props.maxMove
         },
         {
-          x: -MAX_MOVE,
-          y: -MAX_MOVE
+          x: -this.props.maxMove,
+          y: -this.props.maxMove
         },
         {
-          x: -MAX_MOVE,
-          y: -(MAX_MOVE / 4)
+          x: -this.props.maxMove,
+          y: -(this.props.maxMove / 4)
         }
       ],
-      bottom: [{
-        x: 0,
-        y: -MAX_MOVE
-      }],
-      left: [{
-        x: MAX_MOVE,
-        y: 0
-      }],
-      top: [{
-        x: 0,
-        y: MAX_MOVE
-      }],
-      right: [{
-        x: -MAX_MOVE,
-        y: 0
-      }]
+      bottom: [
+        {
+          x: 0,
+          y: -this.props.maxMove
+        }
+      ],
+      left: [
+        {
+          x: this.props.maxMove,
+          y: 0
+        }
+      ],
+      top: [
+        {
+          x: 0,
+          y: this.props.maxMove
+        }
+      ],
+      right: [
+        {
+          x: -this.props.maxMove,
+          y: 0
+        }
+      ]
     };
 
     var randomIndex = 0;
     var movement = 0;
 
-
     if (collidedTopLeft) {
-      console.log("tl");
       randomIndex = random(0, movements.topLeft.length - 1);
       movement = movements.topLeft[randomIndex];
       toX = this.props.x + movement.x;
@@ -186,7 +190,6 @@ class ShapeOrDoodle extends React.PureComponent {
       });
       return;
     } else if (collidedTopRight) {
-      console.log("tr");
       randomIndex = random(0, movements.topRight.length - 1);
       movement = movements.topRight[randomIndex];
       toX = this.props.x + movement.x;
@@ -200,7 +203,6 @@ class ShapeOrDoodle extends React.PureComponent {
       });
       return;
     } else if (collidedBottomLeft) {
-      console.log("bl");
       randomIndex = random(0, movements.bottomLeft.length - 1);
       movement = movements.bottomLeft[randomIndex];
       toX = this.props.x + movement.x;
@@ -214,7 +216,6 @@ class ShapeOrDoodle extends React.PureComponent {
       });
       return;
     } else if (collidedBottomRight) {
-      console.log("br");
       randomIndex = random(0, movements.bottomRight.length - 1);
       movement = movements.bottomRight[randomIndex];
       toX = this.props.x + movement.x;
@@ -230,7 +231,7 @@ class ShapeOrDoodle extends React.PureComponent {
     } else if (collisions.doesIntersect) {
       const randomPlace = random(0, Object.keys(movements).length - 1);
 
-      const key = Object.keys(movements)[randomPlace]
+      const key = Object.keys(movements)[randomPlace];
 
       randomIndex = random(0, movements[key].length - 1);
       movement = movements[key][randomIndex];
@@ -307,12 +308,17 @@ class ShapeOrDoodle extends React.PureComponent {
   }
 }
 
+ShapeOrDoodle.defaultProps = {
+  maxMove: MAX_MOVE
+};
+
 ShapeOrDoodle.propTypes = {
   x: PropTypes.number,
   y: PropTypes.number,
   src: PropTypes.func,
   width: PropTypes.number,
-  height: PropTypes.number
+  height: PropTypes.number,
+  maxMove: PropTypes.number
 };
 
 class Circle extends React.PureComponent {
@@ -402,10 +408,11 @@ class Circle extends React.PureComponent {
       <g
         height={this.props.height}
         width={this.props.width}
-        transform={`translate(${this.props.mX - HIT_WIDTH / 4}, ${this.props.mY -
-          HIT_WIDTH / 4})`}
+        transform={`translate(${this.props.mX - this.props.hitWidth / 4}, ${this
+          .props.mY -
+          this.props.hitWidth / 4})`}
         ref={this.me}
-        style={{ opacity: 0 }}
+        style={{ opacity: 0.3 }}
       >
         <rect
           width={this.props.cx}
@@ -422,7 +429,8 @@ class Circle extends React.PureComponent {
 Circle.defaultProps = {
   mX: 0,
   mY: 0,
-  rows: []
+  rows: [],
+  hitWidth: HIT_WIDTH
 };
 
 export default class Canvas extends React.PureComponent {
@@ -433,35 +441,34 @@ export default class Canvas extends React.PureComponent {
 
     this.getRows = this._getRows.bind(this);
     this.getRow = this._getRow.bind(this);
-    this.getItem = this._getItem.bind(this);
-    this.getRandomDoodle = this._getRandomDoodle.bind(this);
-    this.getRandomShape = this._getRandomShape.bind(this);
+
+    this.plot = throttle(this.plot.bind(this), 1000);
+
+    this.state = {
+      mX: 0,
+      mY: 0,
+      height: "100vh",
+      rows: [],
+      refs: {}
+    };
   }
 
-  state = {
-    mX: 0,
-    mY: 0,
-    height: 500,
-    screenWidth: screen.width,
-    rows: [],
-    refs: {}
-  };
-
-  _getRows(numRows, numCols) {
+  _getRows(numRows, numCols, assets) {
     let rows = [];
 
-    for (var i = 0; i < numRows; i++) {
-      const row = this.getRow(numCols, i);
+    for (var i = 0; i < numRows - 1; i++) {
+      const row = this.getRow(numCols, i, assets);
       rows.push(row);
     }
+
     return rows;
   }
 
-  _getRow(numColumns, rowIndex) {
+  _getRow(numColumns, rowIndex, assets) {
     let cols = [];
 
     for (var i = 0; i < numColumns; i++) {
-      const item = this.getItem(i, rowIndex);
+      const item = assets[rowIndex][i];
       const key = `${rowIndex}${i}`;
 
       this.refs = {
@@ -469,102 +476,196 @@ export default class Canvas extends React.PureComponent {
         [key]: React.createRef()
       };
 
-      cols.push(
-        <ShapeOrDoodle
-          key={key}
-          ref={this.refs[key]}
-          x={i * SHAPE_WIDTH}
-          y={rowIndex * SHAPE_WIDTH}
-          src={item}
-          width={SHAPE_WIDTH}
-          height={SHAPE_WIDTH}
-        />
-      );
+      const x = i * this.props.shapeSpace;
+      const y = rowIndex * this.props.shapeSpace;
+
+      const shouldPlot =
+        pointInSvgPolygon.isInside(
+          [x + this.props.shapeWidth / 2, y + this.props.shapeWidth / 2],
+          this.props.mask
+        ) ||
+        pointInSvgPolygon.isInside(
+          [x, y - this.props.shapeWidth / 4],
+          this.props.mask
+        );
+
+      if (shouldPlot) {
+        cols.push(
+          <ShapeOrDoodle
+            maxMove={this.props.maxMove}
+            key={key}
+            ref={this.refs[key]}
+            x={x}
+            y={y}
+            src={item}
+            width={this.props.shapeWidth}
+            height={this.props.shapeWidth}
+          />
+        );
+      }
     }
 
     return cols;
   }
 
-  _getItem(index, rowIndex) {
-    if (rowIndex % 2 > 0) {
-      if (index % 2 > 0) {
-        //if odd
-        return this.getRandomDoodle();
-      }
-      return this.getRandomShape();
-    }
-
-    if (index % 2 > 0) {
-      //if odd
-      return this.getRandomShape();
-    }
-    return this.getRandomDoodle();
-  }
-
-  _getRandomDoodle() {
-    const max = doodles.length - 1;
-    const min = 0;
-    const random = Math.floor(Math.random() * (+max - +min)) + +min;
-    return {
-      type: "doodle",
-      component: doodles[random]
-    };
-  }
-
-  _getRandomShape() {
-    const max = shapes.length - 1;
-    const min = 0;
-    const random = Math.floor(Math.random() * (+max - +min)) + +min;
-    return {
-      type: "shape",
-      component: shapes[random]
-    };
-  }
-
   componentDidMount() {
-    const screenWidth = this.state.screenWidth;
-    const height = this.state.height;
-    const numRows = height / SHAPE_WIDTH;
-    const numCols = screenWidth / SHAPE_WIDTH;
+    const assets = this.getStaticDoodleList(
+      window.screen.width,
+      window.screen.height,
+      this.props.shapeSpace
+    );
+
+    this.plot(assets);
+  }
+
+  // Generate a STATIC list of randomized doodles with
+  // a shape in between each one
+  getStaticDoodleList(wWidth, wHeight, shapeSpace) {
+    const width = wWidth;
+    const height = wHeight;
+
+    const maxNumRows = height / shapeSpace;
+    const maxNumCols = width / shapeSpace;
+
+    var rnd = 0;
+    let rows = [];
+
+    for (var index = 0; index <= maxNumRows; index++) {
+      var col = [];
+
+      for (var rowIndex = 0; rowIndex <= maxNumCols; rowIndex++) {
+        if (rowIndex % 2 > 0) {
+          if (index % 2 > 0) {
+            //if odd
+
+            rnd = random(0, doodles.length - 1);
+            col.push({
+              type: "doodle",
+              component: doodles[rnd]
+            });
+            continue;
+          }
+
+          col.push({
+            type: "shape",
+            component: shapes[0]
+          });
+
+          continue;
+        } else {
+          if (index % 2 > 0) {
+            //if odd
+
+            col.push({
+              type: "shape",
+              component: shapes[0]
+            });
+
+            continue;
+          }
+
+          rnd = random(0, doodles.length - 1);
+          col.push({
+            type: "doodle",
+            component: doodles[rnd]
+          });
+          continue;
+        }
+      }
+
+      rows.push(col);
+    }
+
+    return rows;
+  }
+
+  viewportToPixels(value) {
+    var parts = value.match(/([0-9\.]+)(vh|vw)/);
+    var q = Number(parts[1]);
+    var side =
+      window[["innerHeight", "innerWidth"][["vh", "vw"].indexOf(parts[2])]];
+    return side * (q / 100);
+  }
+
+  plot(assets) {
+    const screenWidth = this.props.width || window.screen.width;
+    const height = this.viewportToPixels(this.state.height);
+    const numRows = height / this.props.shapeSpace;
+    const numCols = screenWidth / this.props.shapeSpace;
 
     this.setState({
-      rows: this.getRows(numRows, numCols)
+      rows: this.getRows(numRows, numCols, assets)
     });
   }
 
   mouseMove(evt) {
-    var x = evt.pageX - this.canvas.current.offsetLeft;
-    var y = evt.pageY - this.canvas.current.offsetTop;
+    let point = this.canvas.current.createSVGPoint();
+    point.x = evt.clientX;
+    point.y = evt.clientY;
+    let cursor = point.matrixTransform(this.canvas.current.getScreenCTM().inverse());
 
     this.setState({
-      mY: y,
-      mX: x
+      mY: cursor.y,
+      mX: cursor.x
     });
   }
 
   render() {
     return (
       <div
-        className="canvas-container"
-        ref={this.canvas}
-        onMouseMove={this.mouseMove.bind(this)}
-        style={{ height: this.state.height }}
+        style={{
+          backgroundColor: this.props.backgroundColor,
+          width: "100%"
+        }}
       >
-        <svg width="100%" height={this.state.height}>
+        <svg
+          height={this.state.height}
+          className={this.props.className}
+          viewBox={this.props.viewBox}
+          width="100%"
+          onMouseMove={this.mouseMove.bind(this)}
+          ref={this.canvas}
+        >
           <Circle
-            height={HIT_WIDTH}
-            width={HIT_WIDTH}
-            mX={this.state.mX - 40}
-            mY={this.state.mY - 40}
-            cx={HIT_WIDTH}
-            cy={HIT_WIDTH}
+            hitWidth={this.props.hitWidth}
+            height={this.props.hitWidth}
+            width={this.props.hitWidth}
+            mX={this.state.mX - (this.props.hitWidth / 4)}
+            mY={this.state.mY - (this.props.hitWidth / 4)}
+            cx={this.props.hitWidth}
+            cy={this.props.hitWidth}
             r="40"
             fill="red"
             refs={this.refs}
           />
           {this.state.rows}
+          {this.props.component}
         </svg>
       </div>
     );
   }
 }
+
+Canvas.defaultProps = {
+  component: () => <svg></svg>,
+  shapeWidth: SHAPE_WIDTH,
+  shapeSpace: SHAPE_SPACE,
+  hitWidth: SHAPE_WIDTH * 2,
+  maxMove: SHAPE_WIDTH / 3,
+  backgroundColor: "white",
+  mask: "M1,220a214.5,219 0 1,0 429,0a214.5,219 0 1,0 -429,0",
+  className: "",
+  viewBox: "0 0 500 700"
+};
+
+Canvas.propTypes = {
+  component: PropTypes.elementType,
+  mask: PropTypes.string,
+  shapeWidth: PropTypes.number,
+  shapeSpace: PropTypes.number,
+  hitWidth: PropTypes.number,
+  maxMove: PropTypes.number,
+  backgroundColor: PropTypes.string,
+  className: PropTypes.string,
+  viewBox: PropTypes.string
+};
