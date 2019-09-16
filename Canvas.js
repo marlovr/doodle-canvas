@@ -278,11 +278,11 @@ class ShapeOrDoodle extends React.PureComponent {
         toggle={this.toggle}
         from={{
           x: allProps.originX,
-          y: allProps.originY
+          y: allProps.originY,
         }}
         to={{
           x: allProps.toggle ? allProps.toX : allProps.originX,
-          y: allProps.toggle ? allProps.toY : allProps.originY
+          y: allProps.toggle ? allProps.toY : allProps.originY,
         }}
         config={{ clamp: true }}
         onRest={() =>
@@ -300,7 +300,7 @@ class ShapeOrDoodle extends React.PureComponent {
             width={allProps.width}
             height={allProps.height}
           >
-            <Component fill="#333" />
+            <Component fill={allProps.fill} />
           </animated.svg>
         )}
       </Spring>
@@ -309,7 +309,8 @@ class ShapeOrDoodle extends React.PureComponent {
 }
 
 ShapeOrDoodle.defaultProps = {
-  maxMove: MAX_MOVE
+  maxMove: MAX_MOVE,
+  fill: "#333"
 };
 
 ShapeOrDoodle.propTypes = {
@@ -318,7 +319,8 @@ ShapeOrDoodle.propTypes = {
   src: PropTypes.func,
   width: PropTypes.number,
   height: PropTypes.number,
-  maxMove: PropTypes.number
+  maxMove: PropTypes.number,
+  fill: PropTypes.string
 };
 
 class Circle extends React.PureComponent {
@@ -500,6 +502,7 @@ export default class Canvas extends React.PureComponent {
             src={item}
             width={this.props.shapeWidth}
             height={this.props.shapeWidth}
+            fill={this.props.shapeFill}
           />
         );
       }
@@ -655,7 +658,8 @@ Canvas.defaultProps = {
   backgroundColor: "white",
   mask: "M1,220a214.5,219 0 1,0 429,0a214.5,219 0 1,0 -429,0",
   className: "",
-  viewBox: "0 0 500 700"
+  viewBox: "0 0 500 700",
+  shapeFill: "#333"
 };
 
 Canvas.propTypes = {
@@ -667,5 +671,6 @@ Canvas.propTypes = {
   maxMove: PropTypes.number,
   backgroundColor: PropTypes.string,
   className: PropTypes.string,
-  viewBox: PropTypes.string
+  viewBox: PropTypes.string,
+  shapeFill: PropTypes.string
 };

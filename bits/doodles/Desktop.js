@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Spring, animated, interpolate } from "react-spring/renderprops";
+import { animated } from "react-spring/renderprops";
 
 const Desktop = props => {
   return (
