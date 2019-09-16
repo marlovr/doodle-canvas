@@ -449,7 +449,6 @@ export default class Canvas extends React.PureComponent {
     this.state = {
       mX: 0,
       mY: 0,
-      height: "100vh",
       rows: [],
       refs: {}
     };
@@ -593,7 +592,13 @@ export default class Canvas extends React.PureComponent {
 
   plot(assets) {
     const screenWidth = this.props.width || window.screen.width;
-    const height = this.viewportToPixels(this.state.height);
+
+    const isScreenHeight = new RegExp(/(vh)/g).test(this.props.height.toString())
+    
+    const height = isScreenHeight ? this.viewportToPixels(this.props.height) : this.props.height;
+    
+    
+    
     const numRows = height / this.props.shapeSpace;
     const numCols = screenWidth / this.props.shapeSpace;
 
@@ -625,7 +630,7 @@ export default class Canvas extends React.PureComponent {
         }}
       >
         <svg
-          height={this.state.height}
+          height={this.props.height}
           className={this.props.className}
           viewBox={this.props.viewBox}
           width="100%"
@@ -662,7 +667,8 @@ Canvas.defaultProps = {
   mask: "",
   className: "",
   viewBox: "550 50 500 450",
-  shapeFill: "#333"
+  shapeFill: "#333",
+  height: "100vh"
 };
 
 Canvas.propTypes = {
@@ -675,5 +681,6 @@ Canvas.propTypes = {
   backgroundColor: PropTypes.string,
   className: PropTypes.string,
   viewBox: PropTypes.string,
-  shapeFill: PropTypes.string
+  shapeFill: PropTypes.string,
+  height: PropTypes.string
 };
