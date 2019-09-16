@@ -278,11 +278,11 @@ class ShapeOrDoodle extends React.PureComponent {
         toggle={this.toggle}
         from={{
           x: allProps.originX,
-          y: allProps.originY,
+          y: allProps.originY
         }}
         to={{
           x: allProps.toggle ? allProps.toX : allProps.originX,
-          y: allProps.toggle ? allProps.toY : allProps.originY,
+          y: allProps.toggle ? allProps.toY : allProps.originY
         }}
         config={{ clamp: true }}
         onRest={() =>
@@ -489,7 +489,8 @@ export default class Canvas extends React.PureComponent {
         pointInSvgPolygon.isInside(
           [x, y - this.props.shapeWidth / 4],
           this.props.mask
-        );
+        ) ||
+        this.props.mask === "";
 
       if (shouldPlot) {
         cols.push(
@@ -605,7 +606,9 @@ export default class Canvas extends React.PureComponent {
     let point = this.canvas.current.createSVGPoint();
     point.x = evt.clientX;
     point.y = evt.clientY;
-    let cursor = point.matrixTransform(this.canvas.current.getScreenCTM().inverse());
+    let cursor = point.matrixTransform(
+      this.canvas.current.getScreenCTM().inverse()
+    );
 
     this.setState({
       mY: cursor.y,
@@ -633,8 +636,8 @@ export default class Canvas extends React.PureComponent {
             hitWidth={this.props.hitWidth}
             height={this.props.hitWidth}
             width={this.props.hitWidth}
-            mX={this.state.mX - (this.props.hitWidth / 4)}
-            mY={this.state.mY - (this.props.hitWidth / 4)}
+            mX={this.state.mX - this.props.hitWidth / 4}
+            mY={this.state.mY - this.props.hitWidth / 4}
             cx={this.props.hitWidth}
             cy={this.props.hitWidth}
             r="40"
@@ -656,9 +659,9 @@ Canvas.defaultProps = {
   hitWidth: SHAPE_WIDTH * 2,
   maxMove: SHAPE_WIDTH / 3,
   backgroundColor: "white",
-  mask: "M1,220a214.5,219 0 1,0 429,0a214.5,219 0 1,0 -429,0",
+  mask: "",
   className: "",
-  viewBox: "0 0 500 700",
+  viewBox: "550 50 500 450",
   shapeFill: "#333"
 };
 
