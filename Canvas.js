@@ -541,17 +541,17 @@ export default class Canvas extends React.PureComponent {
           if (index % 2 > 0) {
             //if odd
 
-            rnd = random(0, doodles.length - 1);
+            rnd = random(0, this.props.doodles.length - 1);
             col.push({
               type: "doodle",
-              component: doodles[rnd]
+              component: this.props.doodles[rnd]
             });
             continue;
           }
 
           col.push({
             type: "shape",
-            component: shapes[0]
+            component: this.props.shapes[0]
           });
 
           continue;
@@ -561,16 +561,16 @@ export default class Canvas extends React.PureComponent {
 
             col.push({
               type: "shape",
-              component: shapes[0]
+              component: this.props.shapes[0]
             });
 
             continue;
           }
 
-          rnd = random(0, doodles.length - 1);
+          rnd = random(0, this.props.doodles.length - 1);
           col.push({
             type: "doodle",
-            component: doodles[rnd]
+            component: this.props.doodles[rnd]
           });
           continue;
         }
@@ -594,7 +594,7 @@ export default class Canvas extends React.PureComponent {
     const screenWidth = this.props.width || window.screen.width;
 
     const isScreenHeight = new RegExp(/(vh)/g).test(this.props.height.toString())
-    
+
     const height = isScreenHeight ? this.viewportToPixels(this.props.height) : this.props.height;
     
     
@@ -668,10 +668,14 @@ Canvas.defaultProps = {
   className: "",
   viewBox: "550 50 500 450",
   shapeFill: "#333",
-  height: "100vh"
+  height: "100vh",
+  shapes: shapes,
+  doodles: doodles
 };
 
 Canvas.propTypes = {
+  shapes: PropTypes.arrayOf(PropTypes.elementType),
+  doodles: PropTypes.arrayOf(PropTypes.elementType),
   component: PropTypes.elementType,
   mask: PropTypes.string,
   shapeWidth: PropTypes.number,
