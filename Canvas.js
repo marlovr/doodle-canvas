@@ -414,7 +414,7 @@ class Circle extends React.PureComponent {
           .props.mY -
           this.props.hitWidth / 4})`}
         ref={this.me}
-        style={{ opacity: 0.3 }}
+        style={{ opacity: this.props.showRect ? 0.5 : 0 }}
       >
         <rect
           width={this.props.cx}
@@ -432,7 +432,8 @@ Circle.defaultProps = {
   mX: 0,
   mY: 0,
   rows: [],
-  hitWidth: HIT_WIDTH
+  hitWidth: HIT_WIDTH,
+  showRect: false
 };
 
 export default class Canvas extends React.PureComponent {
@@ -648,6 +649,7 @@ export default class Canvas extends React.PureComponent {
             r="40"
             fill="red"
             refs={this.refs}
+            showRect={this.props.showRect}
           />
           {this.state.rows}
           {this.props.component}
@@ -670,7 +672,8 @@ Canvas.defaultProps = {
   shapeFill: "#333",
   height: "100vh",
   shapes: shapes,
-  doodles: doodles
+  doodles: doodles,
+  showRect: false
 };
 
 Canvas.propTypes = {
@@ -686,5 +689,6 @@ Canvas.propTypes = {
   className: PropTypes.string,
   viewBox: PropTypes.string,
   shapeFill: PropTypes.string,
-  height: PropTypes.string
+  height: PropTypes.string,
+  showRect: PropTypes.bool
 };
