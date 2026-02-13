@@ -5,7 +5,7 @@
   "peerDependencies": {
     "lodash": "^4.17.15",
     "react": "^16.9.0",
-    "react-scripts": "3.1.1",
+    "react-scripts": "5.0.1",
     "react-spring": "^8.0.27"
   },
   "scripts": {
@@ -29,7 +29,7 @@
     "babel-loader": "^8.0.6",
     "lodash": "^4.17.15",
     "react": "^16.9.0",
-    "react-scripts": "3.1.1",
+    "react-scripts": "5.0.1",
     "react-spring": "^8.0.27",
     "webpack": "^4.39.3",
     "webpack-cli": "^3.3.7",
